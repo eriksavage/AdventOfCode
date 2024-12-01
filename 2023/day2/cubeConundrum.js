@@ -11,4 +11,5 @@ const testData = [
 let maped = testData.map(s => s.replace(":", ",").replace(";", ","));
 
 console.log(maped);
+// need to find max color for each line
 

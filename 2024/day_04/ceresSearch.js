@@ -18,8 +18,6 @@ function checkDirection(search, position, direction) {
   const limit = { u: 2, r: search[0].length - 3, d: search.length - 3, l: 2 };
   let i = 1;
   let result = true;
-  const check = [`checking UP at row ${position.y}, col ${position.x}`];
-
 
   MAS.forEach(l => {
     let letterToCheck;
@@ -52,12 +50,11 @@ function checkDirection(search, position, direction) {
         letterToCheck = null;
         console.log(`Error: Invalid direction of ${direction}!`);
     }
-    // check.push(search[position.y - i][position.x]);
+
     if (letterToCheck !== l) result = false;
     i += 1;
   })
-  result ? check.push(true) : check.push(false);
-  // console.log(check);
+
   return result;
 }
 
@@ -81,6 +78,62 @@ function xmasSearch(search) {
   return count;
 }
 
+function validateMasX(search, position) {
+  const masX = { upRight: "", downRight: "", downLeft: "", upLeft: "" };
+  const MS = ["M", "S"];
+  let letterToCheck;
+
+  for (const dir of Object.keys(masX)) {
+    switch (dir) {
+      case "upRight":
+        masX.upRight = search[position.y - 1][position.x + 1];
+        if (masX.upRight !== "M" && masX.upRight !== "S") return false;
+        masX.downLeft = masX.upRight === "M" ? "S" : "M";
+        break;
+      case "downRight":
+        masX.downRight = search[position.y + 1][position.x + 1];
+        if (masX.downRight !== "M" && masX.downRight !== "S") return false;
+        masX.upLeft = masX.downRight === "M" ? "S" : "M";
+        break;
+      case "downLeft":
+        letterToCheck = search[position.y + 1][position.x - 1];
+        if (letterToCheck !== masX.downLeft) return false
+        break;
+      case "upLeft":
+        letterToCheck = search[position.y - 1][position.x - 1];
+        if (letterToCheck !== masX.upLeft) return false;
+        break;
+      default:
+        console.log(`Bad Direction: ${dir}`);
+        return null;
+    }
+  }
+
+  return true;
+}
+
+function validPosition(position, size) {
+  return position.x > 0 && position.x < size.x - 1 && position.y > 0 && position.y < size.y - 1;
+}
+
+function masXSearch(search) {
+  const size = { x: search[0].length, y: search.length };
+  let count = 0;
+
+  for (let row = 0; row < size.x; row++) {
+    for (let col = 0; col < size.y; col++) {
+      const position = { x: col, y: row };
+
+      if (search[row][col] === "A" && validPosition(position, size)) {
+        count = validateMasX(search, position) ? count + 1 : count + 0;
+      }
+    }
+  }
+
+  return count;
+}
+
+
 async function generatePart1Answer() {
   const search = await searchArray();
   const xmasCount = xmasSearch(search);
@@ -88,4 +141,12 @@ async function generatePart1Answer() {
   console.log(xmasCount);
 }
 
+async function generatePart2Answer() {
+  const search = await searchArray();
+  const masXCount = masXSearch(search);
+
+  console.log(masXCount);
+}
+
 generatePart1Answer();
+generatePart2Answer();
